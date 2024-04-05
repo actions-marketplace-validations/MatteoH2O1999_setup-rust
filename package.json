@@ -34,10 +34,10 @@
     },
     "devDependencies": {
         "@matteoh2o1999/github-actions-jest-reporter": "^3.0.0",
-        "@types/node": "^20.11.17",
-        "@typescript-eslint/parser": "^5.62.0",
+        "@types/node": "^20.12.4",
+        "@typescript-eslint/parser": "^7.5.0",
         "@vercel/ncc": "^0.38.1",
-        "axios": "^1.6.7",
+        "axios": "^1.6.8",
         "eslint": "^8.56.0",
         "eslint-plugin-github": "^4.10.1",
         "eslint-plugin-jest": "^27.6.3",
@@ -45,6 +45,6 @@
         "js-yaml": "^4.1.0",
         "prettier": "^3.2.5",
         "ts-jest": "^29.1.2",
-        "typescript": "^5.3.3"
+        "typescript": "^5.4.4"
     }
 }
