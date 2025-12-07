@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: 20
+  NODE_VERSION: 24
 
 jobs:
   # Run unit tests
@@ -29,11 +29,12 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          persist-credentials: false
           submodules: recursive
       - name: Setup NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
@@ -44,7 +45,7 @@ jobs:
           FORCE_COLOR: 3
       - name: Upload coverage to Codecov
         if: ${{ github.event_name != 'release' }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -55,11 +56,12 @@ jobs:
     name: Lint code
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          persist-credentials: false
           submodules: recursive
       - name: Setup NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
@@ -75,11 +77,12 @@ jobs:
     name: Test build
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          persist-credentials: false
           submodules: recursive
       - name: Setup NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
@@ -89,7 +92,7 @@ jobs:
       - name: Package with NCC
         run: npm run package
       - name: Upload built action
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: built-action
           path: |
@@ -110,7 +113,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Download built action
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: built-action
       - name: Test action
@@ -120,6 +123,7 @@ jobs:
           channel: stable
           profile: default
           components: clippy rustfmt
+          subcommands: cargo-update
       - name: Check rustup version
         run: rustup -V
       - name: Check cargo version
@@ -146,18 +150,19 @@ jobs:
       security-events: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          persist-credentials: false
           submodules: recursive
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
           queries: security-and-quality
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@v4
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
 
   # Update release tag
   release:
@@ -169,12 +174,13 @@ jobs:
       contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          persist-credentials: false
           submodules: recursive
           ref: ${{ github.event.release.tag_name }}
       - name: Setup NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies

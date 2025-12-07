@@ -1,5 +1,5 @@
 // Action to install rustup in your github actions workflows
-// Copyright (C) 2024 Matteo Dell'Acqua
+// Copyright (C) 2025 Matteo Dell'Acqua
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -22,12 +22,12 @@ import {toolname} from './constants';
 
 export default async function main(): Promise<void> {
   const inputs = await parseInputs();
-  const installer = await getInstaller();
+  const installer = await getInstaller(inputs);
   let rustupPath: string;
 
   try {
     rustupPath = await io.which(toolname);
-  } catch (error) {
+  } catch {
     rustupPath = '';
   }
 
@@ -39,24 +39,19 @@ export default async function main(): Promise<void> {
   }
   core.endGroup();
 
-  core.startGroup('Clearing rustup installation');
-  await installer.clearInstallation();
-  core.endGroup();
-
   core.startGroup('Setting profile');
-  await installer.setProfile(inputs.profile);
+  await installer.setProfile();
   core.endGroup();
 
   core.startGroup('Installing toolchain');
-  await installer.installChannel(inputs.channel);
+  await installer.installChannel();
   core.endGroup();
 
   core.startGroup('Installing additional components');
-  if (inputs.components.length === 0) {
-    core.info('No additional components to install');
-  }
-  for (const component of inputs.components) {
-    await installer.installComponent(component);
-  }
+  await installer.installComponents();
+  core.endGroup();
+
+  core.startGroup('Installing cargo subcommands');
+  await installer.installSubcommands();
   core.endGroup();
 }

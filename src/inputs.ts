@@ -1,5 +1,5 @@
 // Action to install rustup in your github actions workflows
-// Copyright (C) 2024 Matteo Dell'Acqua
+// Copyright (C) 2025 Matteo Dell'Acqua
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -23,10 +23,18 @@ export enum Profile {
   COMPLETE = 'complete'
 }
 
+export enum Cache {
+  NOTHING,
+  BINSTALL,
+  ALL
+}
+
 export type ActionInputs = {
   channel: string;
   profile: Profile;
   components: string[];
+  subcommands: string[];
+  cache: Cache;
 };
 
 async function parseChannel(): Promise<string> {
@@ -54,16 +62,59 @@ async function parseComponents(): Promise<string[]> {
   const components: string[] = [];
   for (const line of lines) {
     for (const component of line.split(' ')) {
-      components.push(component.trim());
+      if (component.length !== 0) {
+        components.push(component.trim());
+      }
     }
   }
   return components;
 }
 
+async function parseSubcommands(): Promise<string[]> {
+  const lines = core.getMultilineInput(InputNames.SUBCOMMANDS);
+  const subcommands: string[] = [];
+  for (const line of lines) {
+    for (const subcommand of line.split(' ')) {
+      if (subcommand.length != 0) {
+        subcommands.push(subcommand.trim());
+      }
+    }
+  }
+  return subcommands;
+}
+
+async function parseCache(): Promise<Cache> {
+  const cacheStrig = core.getInput(InputNames.CACHE).toLowerCase().trim();
+  if (cacheStrig === 'false') {
+    return Cache.NOTHING;
+  }
+  if (cacheStrig === 'binstall') {
+    return Cache.BINSTALL;
+  }
+  if (cacheStrig === 'all') {
+    return Cache.ALL;
+  }
+  throw new Error(
+    `Invalid cache: ${cacheStrig}. Expected one of "false", "binstall" or "all".`
+  );
+}
+
 export async function parseInputs(): Promise<ActionInputs> {
+  const profile = await parseProfile();
+  let components = await parseComponents();
+  components.push(...['rust-std', 'rustc', 'cargo']);
+  if (profile === Profile.DEFAULT) {
+    components.push(...['rust-docs', 'rustfmt', 'clippy']);
+  }
+  components = [...new Set(components)];
+  if (profile === Profile.COMPLETE) {
+    components = [];
+  }
   return {
+    cache: await parseCache(),
     channel: await parseChannel(),
-    components: await parseComponents(),
-    profile: await parseProfile()
+    components,
+    profile,
+    subcommands: [...new Set(await parseSubcommands())]
   };
 }

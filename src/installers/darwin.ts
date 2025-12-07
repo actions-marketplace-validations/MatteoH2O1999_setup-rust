@@ -21,10 +21,14 @@ import Installer from './installer';
 import {shellInstallerUrl} from '../constants';
 
 export default class DarwinInstaller extends Installer {
-  async installRustup(): Promise<void> {
+  override async installRustup(): Promise<void> {
     const installerFile = await tc.downloadTool(shellInstallerUrl);
     core.info('Shell installer downloaded');
     await exec.exec(installerFile);
     core.info('Rustup successfully installed');
+  }
+
+  override osLabel(): string {
+    return 'macos';
   }
 }
