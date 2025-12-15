@@ -59,7 +59,7 @@ jobs:
       - name: Package with NCC
         run: npm run package
       - name: Upload built action
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: built-action
           path: |
@@ -79,7 +79,7 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
       - name: Download built action
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: built-action
       - name: Test action
